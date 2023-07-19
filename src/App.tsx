@@ -1,19 +1,55 @@
-import React, { FC } from 'react';
+import React, { FC, useRef } from 'react';
 import './App.css';
-import { BrowserRouter, NavLink, Route, Routes, useNavigate } from 'react-router-dom';
+import { BrowserRouter, Route, Routes, useNavigate, useLocation } from 'react-router-dom';
 
 const TopPage: FC = () => {
-  return <h1>TopPage</h1>;
-};
-const About: FC = () => {
-  const navigate = useNavigate();
   return (
     <>
-      <h1>About</h1>
-      <button onClick={() => navigate(-1)}>戻る</button>
+      <SearchForm />
+      <h1>top</h1>
     </>
   );
 };
+
+const SearchForm: FC = () => {
+  const navigate = useNavigate();
+  const inputElement = useRef<HTMLInputElement>(null);
+
+  const onClickSearchButton = () => {
+    if (inputElement != null) {
+      const inputKeyword = inputElement.current;
+      navigate(`/result/?q=${inputKeyword?.value}`);
+    }
+  };
+
+  return (
+    <div>
+      <input type="text" ref={inputElement} />
+      <button type="button" onClick={onClickSearchButton}>
+        search
+      </button>
+    </div>
+  );
+};
+
+const Result: FC = () => {
+  const navigate = useNavigate();
+  const location = useLocation();
+  const search = location.search;
+  const query = new URLSearchParams(search);
+
+  return (
+    <>
+      <SearchForm />
+      <div className="result">
+        <h1>search result</h1>
+        <p>q: {query.get('q')}</p>
+        <button onClick={() => navigate('/')}>top</button>
+      </div>
+    </>
+  );
+};
+
 const Page404: FC = () => {
   return <h1>404</h1>;
 };
@@ -22,17 +58,9 @@ function App() {
   return (
     <div className="App">
       <BrowserRouter>
-        <ul>
-          <li>
-            <NavLink to="/">Top</NavLink>
-          </li>
-          <li>
-            <NavLink to="/about">About</NavLink>
-          </li>
-        </ul>
         <Routes>
           <Route path="/" element={<TopPage />} />
-          <Route path="/about" element={<About />} />
+          <Route path="/result/" element={<Result />} />
           <Route path="*" element={<Page404 />} />
         </Routes>
       </BrowserRouter>
