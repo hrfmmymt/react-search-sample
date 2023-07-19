@@ -1,12 +1,18 @@
 import React, { FC } from 'react';
 import './App.css';
-import { BrowserRouter, NavLink, Route, Routes } from 'react-router-dom';
+import { BrowserRouter, NavLink, Route, Routes, useNavigate } from 'react-router-dom';
 
 const TopPage: FC = () => {
   return <h1>TopPage</h1>;
 };
 const About: FC = () => {
-  return <h1>About</h1>;
+  const navigate = useNavigate();
+  return (
+    <>
+      <h1>About</h1>
+      <button onClick={() => navigate(-1)}>戻る</button>
+    </>
+  );
 };
 const Page404: FC = () => {
   return <h1>404</h1>;
