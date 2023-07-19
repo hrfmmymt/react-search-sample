@@ -1,4 +1,4 @@
-import React, { FC, useRef } from 'react';
+import React, { FC, useEffect, useMemo, useRef, useState } from 'react';
 import './App.css';
 import { BrowserRouter, Route, Routes, useNavigate, useLocation } from 'react-router-dom';
 
@@ -36,14 +36,29 @@ const Result: FC = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const search = location.search;
-  const query = new URLSearchParams(search);
+  const query = useMemo(() => new URLSearchParams(search), [search]);
+  const [photoList, setPhotoList] = useState([]);
+
+  useEffect(() => {
+    fetch(
+      `https://api.unsplash.com/search/photos?query=${query}&client_id=${process.env.REACT_APP_UNSPLASH_ACCESS_KEY}`,
+    )
+      .then((response) => response.json())
+      .then((data) => setPhotoList(data.results));
+  }, [query]);
 
   return (
     <>
       <SearchForm />
       <div className="result">
-        <h1>search result</h1>
-        <p>q: {query.get('q')}</p>
+        <h1>search result, query: {query.get('q')}</h1>
+        <div className="photo-list">
+          {photoList.map((photo: any) => (
+            <a href={photo.links.html} key={photo.id}>
+              <img src={photo.urls.regular} alt={photo.alt_description} />
+            </a>
+          ))}
+        </div>
         <button onClick={() => navigate('/')}>top</button>
       </div>
     </>
