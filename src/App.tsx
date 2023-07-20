@@ -38,20 +38,21 @@ const Result: FC = () => {
   const search = location.search;
   const query = useMemo(() => new URLSearchParams(search), [search]);
   const [photoList, setPhotoList] = useState([]);
+  const queryString = query.get('q')?.toString() || '';
 
   useEffect(() => {
     fetch(
-      `https://api.unsplash.com/search/photos?query=${query}&client_id=${process.env.REACT_APP_UNSPLASH_ACCESS_KEY}`,
+      `https://api.unsplash.com/search/photos?query=${queryString}&client_id=${process.env.REACT_APP_UNSPLASH_ACCESS_KEY}`,
     )
       .then((response) => response.json())
       .then((data) => setPhotoList(data.results));
-  }, [query]);
+  }, [queryString]);
 
   return (
     <>
       <SearchForm />
       <div className="result">
-        <h1>search result, query: {query.get('q')}</h1>
+        <h1>search result, query: {queryString}</h1>
         <div className="photo-list">
           {photoList.map((photo: any) => (
             <a href={photo.links.html} key={photo.id}>
