@@ -2,6 +2,23 @@ import React, { FC, useEffect, useMemo, useRef, useState } from 'react';
 import './App.css';
 import { BrowserRouter, Route, Routes, useNavigate, useLocation } from 'react-router-dom';
 
+type Photo = {
+  id: number;
+  urls: { large: string; regular: string; raw: string; small: string };
+  links: {
+    self: string;
+    html: string;
+    download: string;
+  };
+  alt_description: string;
+};
+
+type ResponseData = {
+  results: Photo[];
+  total: number;
+  total_pages: number;
+};
+
 const TopPage: FC = () => {
   return (
     <>
@@ -37,15 +54,19 @@ const Result: FC = () => {
   const location = useLocation();
   const search = location.search;
   const query = useMemo(() => new URLSearchParams(search), [search]);
-  const [photoList, setPhotoList] = useState([]);
   const queryString = query.get('q')?.toString() || '';
+  const [photoList, setPhotoList] = useState<Photo[]>([]);
 
   useEffect(() => {
     fetch(
       `https://api.unsplash.com/search/photos?query=${queryString}&client_id=${process.env.REACT_APP_UNSPLASH_ACCESS_KEY}`,
     )
       .then((response) => response.json())
-      .then((data) => setPhotoList(data.results));
+      .then((data: ResponseData) => setPhotoList(data.results))
+      .catch((err) => {
+        console.error(err);
+        alert('Error!');
+      });
   }, [queryString]);
 
   return (
@@ -54,7 +75,7 @@ const Result: FC = () => {
       <div className="result">
         <h1>search result, query: {queryString}</h1>
         <div className="photo-list">
-          {photoList.map((photo: any) => (
+          {photoList.map((photo: Photo) => (
             <a href={photo.links.html} key={photo.id}>
               <img src={photo.urls.regular} alt={photo.alt_description} />
             </a>
